@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You 2025 ❤️</title>
+<style>
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #50C878; /* Emerald green */
+    font-family: Arial, sans-serif;
+    color: white;
+    overflow-y: auto; /* allow vertical scroll */
+}
+
+h1 {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 60px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.3);
+    z-index: 0;
+}
+
+canvas#bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.box {
+    background: rgba(0,0,0,0.3);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto; /* center horizontally with spacing */
+    z-index: 1;
+}
+
+input[type="text"], input[type="password"], textarea {
+    padding: 10px;
+    border-radius: 15px;
+    border: none;
+    width: 90%;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border-radius: 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button.choice { margin: 5px; }
+
+#menu, #timeline, #letterChoice, #letterBox, #bucketList, #timeCapsule, #lock { display: none; }
+
+#photo { width: 100%; border-radius: 15px; margin-top: 10px; }
+
+ul { list-style: none; padding: 0; margin-top: 10px; }
+
+li { background: rgba(255,255,255,0.2); padding: 8px 10px; margin-bottom: 5px; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<h1>2025</h1>
+
+<!-- BACKGROUND CANVAS -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- COUNTDOWN -->
+<div class="box" id="countdown">
+    <h2>⏳ Countdown to New Year</h2>
+    <p id="timer"></p>
+</div>
+
+<!-- PASSWORD -->
+<div class="box" id="lock">
+    <h2>🔒 Private</h2>
+    <p>Only for my Ai</p>
+    <input type="password" id="pass" placeholder="Enter password">
+    <br>
+    <button onclick="unlock()">Enter ❤️</button>
+    <p id="error"></p>
+</div>
+
+<!-- MENU -->
+<div class="box" id="menu">
+    <h2>🌟 Choose a Section</h2>
+    <button onclick="openSection('timeline')">Moments Together</button><br>
+    <button onclick="openSection('letterChoice')">Letter</button><br>
+    <button onclick="openSection('bucketList')">Bucket List</button><br>
+    <button onclick="openSection('timeCapsule')">Time Capsule</button>
+</div>
+
+<!-- PHOTO SLIDESHOW -->
+<div class="box" id="timeline">
+    <h2>Our Year Together ❤️</h2>
+    <p id="monthLabel"></p>
+    <img id="photo" src="">
+    <br>
+    <button onclick="prevPhoto()">⏪ Previous</button>
+    <button onclick="nextPhoto()">Next ⏩</button>
+    <br><br>
+    <button onclick="backToMenu('timeline')">Back to Menu</button>
+</div>
+
+<!-- LETTER -->
+<div class="box" id="letterChoice">
+    <h2>One Last Thing…</h2>
+    <p>Do you want to read my letter?</p>
+    <button class="choice" onclick="openLetter()">Yes</button>
+    <button class="choice" onclick="declineLetter()">No</button>
+</div>
+
+<div class="box" id="letterBox">
+    <h2>My Letter ❤️</h2>
+    <div id="letter">
+        <p>To my Ai,</p>
+        <p>I thank God for allowing our paths to cross and for letting us be together. I honestly never expected what happened to us this year, but it reminded me that God truly works in His own perfect way. He sent someone who brings me peace, comfort, and a kind of care I never knew I needed.</p>
+        <p>Thank you for being there for me, for listening, for loving me, for understanding me, and for making me genuinely happy. Thank you for everything you do, especially for staying by my side and supporting me throughout my review so far. I hope you know how grateful and lucky I am to have you in my life.</p>
+        <p>Please remember that I am always here for you, especially during your lowest moments. I’ll always be your biggest supporter. I’m so proud of everything you’ve achieved this year, babyyy, and I’m excited for the many opportunities waiting for you in 2026.</p>
+        <p>Let’s face every challenge together. Here’s to more dates, more adventures, more wholesome memories, and more love. I don’t have many wishes for 2026—but keeping you in my life is the biggest one of all. I LOVE YOUUUU SOOOO MUCHHHHH AIIII 💖</p>
+        <p>Forever yours,<br>Koi</p>
+    </div>
+    <br>
+    <button onclick="backToMenu('letterBox')">Back to Menu</button>
+</div>
+
+<!-- BUCKET LIST -->
+<div class="box" id="bucketList">
+    <h2>Our Bucket List 🌟</h2>
+    <input type="text" id="newItem" placeholder="Add something..."/>
+    <button onclick="addItem()">Add</button>
+    <ul id="list"></ul>
+    <br>
+    <button onclick="backToMenu('bucketList')">Back to Menu</button>
+</div>
+
+<!-- TIME CAPSULE -->
+<div class="box" id="timeCapsule">
+    <h2>Time Capsule ⏳</h2>
+    <textarea id="capsuleMsg" rows="4" placeholder="Write a message to open in 1 year..."></textarea>
+    <br>
+    <button onclick="saveCapsule()">Save Message</button>
+    <button onclick="showCapsule()">View Capsule</button>
+    <p id="capsuleDisplay"></p>
+    <br>
+    <button onclick="backToMenu('timeCapsule')">Back to Menu</button>
+</div>
+
+<!-- BACKGROUND MUSIC -->
+<audio id="bgMusic" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// ===== SETTINGS =====
+const PASSWORD = "122125"; // change password
+let previewMode = false; // countdown enforced
+
+// ===== COUNTDOWN =====
+const countdownEl = document.getElementById("countdown");
+const timerEl = document.getElementById("timer");
+const targetDate = new Date("January 1, 2026 00:00:00 GMT+0800").getTime();
+
+function updateCountdown(){
+    const now = new Date().getTime();
+    const diff = targetDate - now;
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+    const minutes = Math.floor((diff%(1000*60*60))/(1000*60));
+    const seconds = Math.floor((diff%(1000*60))/1000);
+    
+    timerEl.innerText = `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
+
+    if(diff <= 0){
+        clearInterval(countdownInterval);
+        countdownEl.style.display = "none";       // hide countdown
+        document.getElementById("lock").style.display = "block"; // show password
+    }
+}
+
+countdownEl.style.display = "block";
+var countdownInterval = setInterval(updateCountdown,1000);
+
+// ===== PASSWORD =====
+function unlock(){
+    if(document.getElementById("pass").value===PASSWORD){
+        document.getElementById("lock").style.display="none";
+        document.getElementById("menu").style.display="block";
+        document.getElementById("bgMusic").volume=0.5;
+        document.getElementById("bgMusic").play();
+        startTimeline();
+    } else {
+        document.getElementById("error").innerText="Wrong password 💔";
+    }
+}
+
+// ===== MENU NAVIGATION =====
+function openSection(id){
+    document.getElementById("menu").style.display="none";
+    document.getElementById(id).style.display="block";
+    if(id==="timeline"){startTimeline();}
+}
+function backToMenu(id){
+    document.getElementById(id).style.display="none";
+    document.getElementById("menu").style.display="block";
+}
+
+// ===== PHOTO SLIDESHOW =====
+const months=[
+    { name:"July", folder:"photos/jul", photos:2 },
+    { name:"August", folder:"photos/aug", photos:3 },
+    { name:"September", folder:"photos/sep", photos:7 },
+    { name:"October", folder:"photos/oct", photos:4 },
+    { name:"November", folder:"photos/nov", photos:2 },
+    { name:"December", folder:"photos/dec", photos:8 }
+];
+let currentMonth=0;
+let currentPhoto=1;
+
+function showPhoto(){
+    document.getElementById("monthLabel").innerText = months[currentMonth].name;
+    document.getElementById("photo").src = `${months[currentMonth].folder}/${currentPhoto}.jfif`;
+}
+
+function nextPhoto(){
+    currentPhoto++;
+    if(currentPhoto > months[currentMonth].photos){
+        currentPhoto = 1;
+        currentMonth++;
+        if(currentMonth >= months.length) currentMonth=0;
+    }
+    showPhoto();
+}
+
+function prevPhoto(){
+    currentPhoto--;
+    if(currentPhoto <1){
+        currentMonth--;
+        if(currentMonth <0) currentMonth=months.length-1;
+        currentPhoto = months[currentMonth].photos;
+    }
+    showPhoto();
+}
+
+function startTimeline(){
+    currentMonth=0;
+    currentPhoto=1;
+    showPhoto();
+}
+
+// ===== LETTER =====
+function openLetter(){
+    document.getElementById("letterChoice").style.display="none";
+    document.getElementById("letterBox").style.display="block";
+}
+function declineLetter(){
+    const choice=document.getElementById("letterChoice");
+    choice.innerHTML=`<h2>🥺</h2><p style="font-size:18px;">di mo na ako love?</p>`;
+    setTimeout(()=>{
+        choice.innerHTML=`<h2>One Last Thing…</h2>
+        <p>Do you want to read my letter?</p>
+        <button class="choice" onclick="openLetter()">Yes</button>
+        <button class="choice" onclick="declineLetter()">No</button>`;
+    },2000);
+}
+
+// ===== BUCKET LIST =====
+function addItem(){
+    const input=document.getElementById("newItem");
+    const val=input.value.trim();
+    if(val==="") return;
+    const li=document.createElement("li");
+    li.textContent=val;
+    const removeBtn=document.createElement("button");
+    removeBtn.textContent="❌";
+    removeBtn.style.marginLeft="10px";
+    removeBtn.onclick=()=>li.remove();
+    li.appendChild(removeBtn);
+    document.getElementById("list").appendChild(li);
+    input.value="";
+}
+
+// ===== TIME CAPSULE =====
+function saveCapsule(){
+    const msg=document.getElementById("capsuleMsg").value.trim();
+    if(msg===""){alert("Write something!"); return;}
+    const now=new Date().getTime();
+    localStorage.setItem("capsuleMsg",msg);
+    localStorage.setItem("capsuleTime",now);
+    alert("Message saved! You can open it in 1 year.");
+    document.getElementById("capsuleMsg").value="";
+}
+function showCapsule(){
+    const msg=localStorage.getItem("capsuleMsg");
+    const time=localStorage.getItem("capsuleTime");
+    if(!msg){document.getElementById("capsuleDisplay").innerText="No message yet!"; return;}
+    const now=new Date().getTime();
+    if(now - time >= 365*24*60*60*1000){
+        document.getElementById("capsuleDisplay").innerText="🎉 Your Time Capsule Message:\n"+msg;
+    } else {
+        document.getElementById("capsuleDisplay").innerText="⏳ It's not time yet!";
+    }
+}
+
+// ===== BACKGROUND HEARTS & FIREWORKS =====
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
+
+class Heart{constructor(){this.x=Math.random()*canvas.width;this.y=canvas.height+Math.random()*100;this.size=10+Math.random()*10;this.speed=1+Math.random()*2;this.angle=Math.random()*2*Math.PI;}
+draw(){ctx.save();ctx.fillStyle="rgba(255,0,100,0.7)";ctx.beginPath();ctx.arc(this.x,this.y,this.size/2,0,Math.PI*2);ctx.fill();ctx.restore();}
+update(){this.y-=this.speed;this.x+=Math.sin(this.angle);this.angle+=0.01;if(this.y<-20){this.y=canvas.height+20;this.x=Math.random()*canvas.width;}this.draw();}}
+let hearts=[];for(let i=0;i<30;i++)hearts.push(new Heart());
+
+class Firework{constructor(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height/2;this.particles=[];for(let i=0;i<20;i++){this.particles.push({x:this.x,y:this.y,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,alpha:1,color:`hsl(${Math.random()*360},100%,70%)`});}}draw(){this.particles.forEach(p=>{ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();ctx.restore();});}
+update(){this.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.alpha-=0.02;});this.particles=this.particles.filter(p=>p.alpha>0);if(this.particles.length>0)this.draw();}}
+let fireworks=[];function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);hearts.forEach(h=>h.update());fireworks.forEach(f=>f.update());fireworks=fireworks.filter(f=>f.particles.length>0);requestAnimationFrame(animate);}
+animate();setInterval(()=>{fireworks.push(new Firework());},2000);
+</script>
+</body>
+</html>
