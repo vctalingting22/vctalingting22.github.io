@@ -235,7 +235,7 @@ let currentPhoto=1;
 
 function showPhoto(){
     document.getElementById("monthLabel").innerText = months[currentMonth].name;
-    document.getElementById("photo").src = `${months[currentMonth].folder}/${currentPhoto}.jfif`;
+    document.getElementById("photo").src = `${months[currentMonth].folder}/${currentPhoto}.jpg`;
 }
 
 function nextPhoto(){
@@ -337,3 +337,4 @@ animate();setInterval(()=>{fireworks.push(new Firework());},2000);
 </script>
 </body>
 </html>
+
